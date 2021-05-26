@@ -1,0 +1,40 @@
+@@@@@@@@@@@@@@@ = FALAR COM O JULIO
+
+0. Resumo
+1. Introduçao
+	-1. O que 'e
+	-2. Porque 'e interessante
+	-3. Aplicaçoes
+2. Sobre o Problema Computacional - @@@@@@@@@@@@@@@
+	-Descrever como o problema de hashing eh diferente de outros problemas computacionais
+3. Aplicabilidade do Problema
+	-Descrever aplicaçoes com mais detalhe
+		-Hashtable
+		-Hashsets
+		-Criptografia
+		-Verifiçao de integridade de dados
+		-Verifiçao de autenticidade de dados
+		-Blockchain
+4. Definiçao de Estruturas
+	-Arrays e slices - @@@@@@@@@@@@@@@
+	-Operaçoes logicas XOR, AND, OR e NOT
+5. Algoritmo e Correçao
+	-Especificaçao IETF (Internet Engineering Task Force): https://datatracker.ietf.org/doc/html/rfc1321
+	-Test suit: https://datatracker.ietf.org/doc/html/rfc1321#appendix-A.5
+	-Performance: 
+		-https://dl.acm.org/doi/abs/10.1145/217391.217414
+		-https://asecuritysite.com/encryption/htest
+	-ALGORITMO COM EXEMPLOS
+		-pseudo codigo
+		-exemplos
+6. Segurança:
+	-Colisoes
+		-O que 'e
+		-Porque sao relevantes para a segurança
+		-Exemplos: https://en.wikipedia.org/wiki/Flame_malware
+	-How to Break MD5 and Other Hash Functions, https://link.springer.com/chapter/10.1007/978-3-642-01001-9_8
+6. Implementaçao em Typescript
+	-Bibliotecas: Lodash, Jest para testes unitarios
+	-Descriçao em UML
+	@@@@@@@@@@@@@@@ = Pre, Pos condiçoes e invariante de laço
+7. Conclusoes
