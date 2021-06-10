@@ -124,6 +124,3 @@ export function not32(operand: string): string  {
 
   return returnStr
 }
-
-
-

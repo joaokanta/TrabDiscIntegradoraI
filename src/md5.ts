@@ -14,9 +14,10 @@ export class MD5 {
     7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,
     5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20,
     4, 11, 16, 23,  4, 11, 16, 23,  4, 11, 16, 23,  4, 11, 16, 23,
-    6, 10, 15, 21,  6, 10, 15, 21,  6, 10, 15, 21,  6, 10, 15, 21]
+    6, 10, 15, 21,  6, 10, 15, 21,  6, 10, 15, 21,  6, 10, 15, 21
+  ]
 
-  readonly premadeSineTable: number[] = [
+  readonly premadeSineTable__K__: number[] = [
     0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
     0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501,
     0x698098d8, 0x8b44f7af, 0xffff5bb1, 0x895cd7be,
@@ -39,12 +40,9 @@ export class MD5 {
   c0 = 0x98badcfe.toString(2)
   d0 = 0x10325476.toString(2)
 
+
   originalMessage = ""
   message = ""
-
-  constructor() {
-
-  }
 
   run(message: string): string {
     this.originalMessage = message
@@ -59,9 +57,13 @@ export class MD5 {
 
     this.message = this.message.concat(this.lengthIn64BitsBinary(this.message))
 
+    const blocks512: string[] = this.breakMessageInto512bitChunks(this.message)
 
 
-    for(let i = 0; i < this.message.length; ) {
+    for(let i = 0; i < blocks512.length; i++) {
+
+      const M: string[] = this.breakInto16_32BitChunks(blocks512[i])
+
       for(let j = 0; j < 32; j++) {
         let A = this.a0
         let B = this.b0
@@ -75,23 +77,23 @@ export class MD5 {
           if (k <= 15) {
             F = or32(and32(B, C), and32(not32(B), D))   // F := (B and C) or ((not B) and D)
             g = k % 16                                  // g := (i) mod 16
-          } else if (16 <= i && i <= 31) {
+          } else if (16 <= j && j <= 31) {
             F = or32(and32(D, B), and32(not32(D), C))   // F := (D and B) or ((not D) and C)
-            g = (5 * i + 1) % 16                        // g := (5×i + 1) mod 16
-          } else if (32 <= i && i <= 47) {
+            g = (5 * j + 1) % 16                        // g := (5×i + 1) mod 16
+          } else if (32 <= j && j <= 47) {
             F = xor32(B, xor32(C, D))                   // F := B xor C xor D
-            g = (3 * i + 5) % 16                        // g := (3×i + 5) mod 16
-          } else if (48 <= i && i <= 63) {
+            g = (3 * j + 5) % 16                        // g := (3×i + 5) mod 16
+          } else if (48 <= j && j <= 63) {
             F = xor32(C, or32(B, not32(D)))             // F := C xor (B or (not D))
-            g = (7 * i) % 16                            // g := (7×i) mod 16
+            g = (7 * j) % 16                            // g := (7×i) mod 16
           }
 
-          F = sum32(F, sum32(A, sum32(this.premadeSineTable[k].toString(2), '00000000000000000000000000000000')))
+          F = sum32(F, sum32(A, sum32(this.premadeSineTable__K__[k].toString(2), M[g])))
 
           A = D
           D = C
           C = B
-          B = B //B := B + leftrotate(F, s[i])
+          B = sum32(B, M[g]) // B := B + leftrotate(F, s[i])
         }
 
         this.a0 = sum32(this.a0, A)
@@ -99,8 +101,6 @@ export class MD5 {
         this.c0 = sum32(this.c0, C)
         this.d0 = sum32(this.d0, D)
       }
-
-      i += 512
     }
 
     return this.a0.concat(this.b0.concat(this.c0.concat(this.d0)))
@@ -119,114 +119,53 @@ export class MD5 {
     return lohi
   }
 
-  // sum32(firstOperand: string, secondOperand: string) {
-  //   const a = parseInt(firstOperand, 2)
-  //   const b = parseInt(secondOperand, 2)
+  breakMessageInto512bitChunks(str: string): string[] {
+    const message = str
+    let returnArray: string[] = []
 
-  //   const res = (a + b)
-    
-    
+    for (let i = 0; i < message.length; i += 512) {
+      returnArray.push(message.substr(i, 512))
+    }
 
-  //   let str = res.toString(2)
+    return returnArray
+  }
 
-  //   if (str.length > 32)
-  //     str = str.substring(str.length - 32)
-  //   else 
-  //     str = str.padStart(32, '0')
+  breakInto16_32BitChunks(str: string): string[]  {
+    const message = str
+    let returnArray: string[] = []
 
-  //   return str
-  // }
+    for (let i = 0; i < message.length; i += 32) {
+      returnArray.push(message.substr(i, 32))
+    }
 
-  // and32(firstOperand: string, secondOperand: string) {
-  //   const a = parseInt(firstOperand, 2)
-  //   const b = parseInt(secondOperand, 2)
+    return returnArray
+  }
 
-  //   const res = (a & b)
-    
+  leftRotate(word: string, shiftAmount: number): string {
+    let str = word
+    let returnStr = ""
 
-  //   let str = res.toString(2)
-
-  //   if (str.length > 32)
-  //     str = str.substring(str.length - 32)
-  //   else 
-  //     str = str.padStart(32, '0')
-
-  //   return str
-  // }
-
-  // or32(firstOperand: string, secondOperand: string) {
-  //   const a = parseInt(firstOperand, 2)
-  //   const b = parseInt(secondOperand, 2)
-
-  //   const res = (a | b)
-    
-
-  //   let str = res.toString(2)
-
-  //   if (str.length > 32)
-  //     str = str.substring(str.length - 32)
-  //   else 
-  //     str = str.padStart(32, '0')
-
-  //   return str
-  // }
-
-  // xor32(firstOperand: string, secondOperand: string) {
-  //   const a = parseInt(firstOperand, 2)
-  //   const b = parseInt(secondOperand, 2)
-
-  //   const res = (a ^ b)
-    
-
-  //   let str = res.toString(2)
-
-  //   if (str.length > 32)
-  //     str = str.substring(str.length - 32)
-  //   else 
-  //     str = str.padStart(32, '0')
-
-  //   return str
-  // }
-
-  // not32(operand: string) {
-  //   const a = parseInt(operand, 2)
-
-  //   const res = ~a
-
-  //   if (res < 0) {
-  //     console.log()
-  //     console.log('a ', a.toString(2))
-  //     console.log('not32 negative: ', res.toString(2))
-  //   }
-
-  //   let str = res.toString(2)
-
-  //   if (str.length > 32)
-  //     str = str.substring(str.length - 32)
-  //   else 
-  //     str = str.padStart(32, '0')
-
-  //   return str
-  // }
-
-  // breakIntoChu
+    for (let i = 31; i > 0; i--) {
 
 
+      const last = word[31]
+      returnStr = returnStr.concat(str[i - 1])
+
+
+      // str[i] = str[i + 1]
+
+    }
+
+    return ''
+  }
 }
 
 /*
 
-A 64-bit representation of b (the length of the message before the
-padding bits were added) is appended to the result of the previous
-step. In the unlikely event that b is greater than 2^64, then only
-the low-order 64 bits of b are used. (These bits are appended as two
-32-bit words and appended low-order word first in accordance with the
-previous conventions.)
+abc
 
-At this point the resulting message (after padding with bits and with
-b) has a length that is an exact multiple of 512 bits. Equivalently,
-this message has a length that is an exact multiple of 16 (32-bit)
-words. Let M[0 ... N-1] denote the words of the resulting message,
-where N is a multiple of 16.
+bca
+
+
 
 */
