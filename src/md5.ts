@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prefer-const */
 import _, { xor } from 'lodash'
-import { and32, sum32, or32, xor32, not32 } from "./utils/bitwiseOperations"
+import { and32, sum32, or32, xor32, not32, leftShit32, rightShit32 } from "./utils/bitwiseOperations"
 
 /*
 
@@ -59,9 +59,7 @@ export class MD5 {
 
     const blocks512: string[] = this.breakMessageInto512bitChunks(this.message)
 
-
     for(let i = 0; i < blocks512.length; i++) {
-
       const M: string[] = this.breakInto16_32BitChunks(blocks512[i])
 
       for(let j = 0; j < 32; j++) {
@@ -93,7 +91,7 @@ export class MD5 {
           A = D
           D = C
           C = B
-          B = sum32(B, M[g]) // B := B + leftrotate(F, s[i])
+          B = sum32(B, this.leftRotate(F, this.shiftAmount[k])) // B := B + leftrotate(F, s[i])
         }
 
         this.a0 = sum32(this.a0, A)
@@ -142,30 +140,6 @@ export class MD5 {
   }
 
   leftRotate(word: string, shiftAmount: number): string {
-    let str = word
-    let returnStr = ""
-
-    for (let i = 31; i > 0; i--) {
-
-
-      const last = word[31]
-      returnStr = returnStr.concat(str[i - 1])
-
-
-      // str[i] = str[i + 1]
-
-    }
-
-    return ''
+    return or32(leftShit32(word, shiftAmount), rightShit32(word, 32 - shiftAmount))
   }
 }
-
-/*
-
-abc
-
-bca
-
-
-
-*/

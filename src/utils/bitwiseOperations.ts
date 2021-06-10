@@ -16,37 +16,6 @@ export function sum32(firstOperand: string, secondOperand: string): string  {
       ((firstOp[i] === '1') && (secondOp[i] === '1')) ||
       ((secondOp[i] === '1') && carry) ||
       ((firstOp[i] === '1') && carry)
-
-
-    // if ((firstOp[i] === '1') && (secondOp[i] === '1') && carrier) {
-    //   returnStr = '1'.concat(returnStr)
-    //   carrier = true
-    // }
-
-    // else if ((firstOp[i] === '1') && (secondOp[i] === '1')) {
-    //   returnStr = '0'.concat(returnStr)
-    //   carrier = true
-    // }
-
-    // else if ((firstOp[i] === '1') || (secondOp[i] === '1') && carrier) {
-    //   returnStr = '0'.concat(returnStr)
-    //   carrier = true
-    // }
-
-    // else if ((firstOp[i] === '1') || (secondOp[i] === '1')) {
-    //   returnStr = '1'.concat(returnStr)
-    //   carrier = false
-    // }
-
-    // else if (carrier) {
-    //   returnStr = '1'.concat(returnStr)
-    //   carrier = false
-    // }
-
-    // else {
-    //   returnStr = '0'.concat(returnStr)
-    //   carrier = false
-    // }
   }
 
   return returnStr
@@ -87,7 +56,6 @@ export function or32(firstOperand: string, secondOperand: string): string  {
 
   return returnStr
 }
-  
 
 export function xor32(firstOperand: string, secondOperand: string): string  {
   const totalLength = 32
@@ -107,7 +75,6 @@ export function xor32(firstOperand: string, secondOperand: string): string  {
   return returnStr
 }
 
-
 export function not32(operand: string): string  {
   const totalLength = 32
   
@@ -123,4 +90,17 @@ export function not32(operand: string): string  {
   }
 
   return returnStr
+}
+
+export function leftShit32(str: string, shiftAmount: number): string {
+  const newstr: string = str.substring(shiftAmount, str.length)
+  const padded: string = newstr.padEnd(32, '0')
+  return padded
+}
+
+export function rightShit32(str: string, shiftAmount: number): string {
+  const amount = (str.length - shiftAmount) > 0 ? (str.length - shiftAmount) : 0
+  const newstr: string = str.substring(0, amount)
+  const padded: string = newstr.padStart(32, '0')
+  return padded
 }
