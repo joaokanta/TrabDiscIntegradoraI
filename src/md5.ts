@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prefer-const */
-import _ from 'lodash'
-
+import _, { xor } from 'lodash'
+import { and32, sum32, or32, xor32, not32 } from "./utils/bitwiseOperations"
 
 /*
 
@@ -34,22 +34,16 @@ export class MD5 {
     0x6fa87e4f, 0xfe2ce6e0, 0xa3014314, 0x4e0811a1,
     0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391]
 
-  a0 = 0x67452301
-  b0 = 0xefcdab89
-  c0 = 0x98badcfe
-  d0 = 0x10325476
+  a0 = 0x67452301.toString(2)
+  b0 = 0xefcdab89.toString(2)
+  c0 = 0x98badcfe.toString(2)
+  d0 = 0x10325476.toString(2)
 
   originalMessage = ""
   message = ""
 
   constructor() {
-    console.log('')
-  }
 
-  test() {
-    for(let i = 0; i < 64; i++) {
-      console.log(this.not32(this.premadeSineTable[i].toString(2)))
-    }
   }
 
   run(message: string): string {
@@ -65,48 +59,51 @@ export class MD5 {
 
     this.message = this.message.concat(this.lengthIn64BitsBinary(this.message))
 
+
+
     for(let i = 0; i < this.message.length; ) {
       for(let j = 0; j < 32; j++) {
-        // let A = this.a0.toString(2)
-        // let B = this.b0.toString(2)
-        // let C = this.c0.toString(2)
-        // let D = this.d0.toString(2)
+        let A = this.a0
+        let B = this.b0
+        let C = this.c0
+        let D = this.d0
 
         for(let k = 0; k < 64; k++) {
-          // let F = '00000000000000000000000000000000'
-          console.log(this.not32(this.premadeSineTable[k].toString(2)))
+          let F = '00000000000000000000000000000000'
+          let g = 0
 
-          // let g = '00000000000000000000000000000000'
+          if (k <= 15) {
+            F = or32(and32(B, C), and32(not32(B), D))   // F := (B and C) or ((not B) and D)
+            g = k % 16                                  // g := (i) mod 16
+          } else if (16 <= i && i <= 31) {
+            F = or32(and32(D, B), and32(not32(D), C))   // F := (D and B) or ((not D) and C)
+            g = (5 * i + 1) % 16                        // g := (5×i + 1) mod 16
+          } else if (32 <= i && i <= 47) {
+            F = xor32(B, xor32(C, D))                   // F := B xor C xor D
+            g = (3 * i + 5) % 16                        // g := (3×i + 5) mod 16
+          } else if (48 <= i && i <= 63) {
+            F = xor32(C, or32(B, not32(D)))             // F := C xor (B or (not D))
+            g = (7 * i) % 16                            // g := (7×i) mod 16
+          }
 
-          // if (k <= 15) {
-          //   F = this.or32(this.and32(B, C), this.and32(this.not32(B), D))
-          //   // g = k
-          // }
+          F = sum32(F, sum32(A, sum32(this.premadeSineTable[k].toString(2), '00000000000000000000000000000000')))
 
-          // F = this.sum32(F, this.sum32(A, this.sum32(this.premadeSineTable[k].toString(2), '00000000000000000000000000000000')))
-          // if (F.search('-') >= 0) {
-            // console.log('A ', A)
-            // console.log('B ', B)
-            // console.log('C ', C)
-            // console.log('D ', D)
-            // console.log('F ', F)
-            // console.log()
-          // }
-          
-          
-          // A = D
-          // D = C
-          // C = B
-          // B = F //B := B + leftrotate(F, s[i])
+          A = D
+          D = C
+          C = B
+          B = B //B := B + leftrotate(F, s[i])
         }
 
-        
+        this.a0 = sum32(this.a0, A)
+        this.b0 = sum32(this.b0, B)
+        this.c0 = sum32(this.c0, C)
+        this.d0 = sum32(this.d0, D)
       }
 
       i += 512
     }
 
-    return this.message
+    return this.a0.concat(this.b0.concat(this.c0.concat(this.d0)))
   }
 
   lengthIn64BitsBinary(message: string): string {
@@ -122,95 +119,99 @@ export class MD5 {
     return lohi
   }
 
-  sum32(firstOperand: string, secondOperand: string) {
-    const a = parseInt(firstOperand, 2)
-    const b = parseInt(secondOperand, 2)
+  // sum32(firstOperand: string, secondOperand: string) {
+  //   const a = parseInt(firstOperand, 2)
+  //   const b = parseInt(secondOperand, 2)
 
-    const res = (a + b)
+  //   const res = (a + b)
     
     
 
-    let str = res.toString(2)
+  //   let str = res.toString(2)
 
-    if (str.length > 32)
-      str = str.substring(str.length - 32)
-    else 
-      str = str.padStart(32, '0')
+  //   if (str.length > 32)
+  //     str = str.substring(str.length - 32)
+  //   else 
+  //     str = str.padStart(32, '0')
 
-    return str
-  }
+  //   return str
+  // }
 
-  and32(firstOperand: string, secondOperand: string) {
-    const a = parseInt(firstOperand, 2)
-    const b = parseInt(secondOperand, 2)
+  // and32(firstOperand: string, secondOperand: string) {
+  //   const a = parseInt(firstOperand, 2)
+  //   const b = parseInt(secondOperand, 2)
 
-    const res = (a & b)
+  //   const res = (a & b)
     
 
-    let str = res.toString(2)
+  //   let str = res.toString(2)
 
-    if (str.length > 32)
-      str = str.substring(str.length - 32)
-    else 
-      str = str.padStart(32, '0')
+  //   if (str.length > 32)
+  //     str = str.substring(str.length - 32)
+  //   else 
+  //     str = str.padStart(32, '0')
 
-    return str
-  }
+  //   return str
+  // }
 
-  or32(firstOperand: string, secondOperand: string) {
-    const a = parseInt(firstOperand, 2)
-    const b = parseInt(secondOperand, 2)
+  // or32(firstOperand: string, secondOperand: string) {
+  //   const a = parseInt(firstOperand, 2)
+  //   const b = parseInt(secondOperand, 2)
 
-    const res = (a | b)
+  //   const res = (a | b)
     
 
-    let str = res.toString(2)
+  //   let str = res.toString(2)
 
-    if (str.length > 32)
-      str = str.substring(str.length - 32)
-    else 
-      str = str.padStart(32, '0')
+  //   if (str.length > 32)
+  //     str = str.substring(str.length - 32)
+  //   else 
+  //     str = str.padStart(32, '0')
 
-    return str
-  }
+  //   return str
+  // }
 
-  xor32(firstOperand: string, secondOperand: string) {
-    const a = parseInt(firstOperand, 2)
-    const b = parseInt(secondOperand, 2)
+  // xor32(firstOperand: string, secondOperand: string) {
+  //   const a = parseInt(firstOperand, 2)
+  //   const b = parseInt(secondOperand, 2)
 
-    const res = (a ^ b)
+  //   const res = (a ^ b)
     
 
-    let str = res.toString(2)
+  //   let str = res.toString(2)
 
-    if (str.length > 32)
-      str = str.substring(str.length - 32)
-    else 
-      str = str.padStart(32, '0')
+  //   if (str.length > 32)
+  //     str = str.substring(str.length - 32)
+  //   else 
+  //     str = str.padStart(32, '0')
 
-    return str
-  }
+  //   return str
+  // }
 
-  not32(operand: string) {
-    const a = parseInt(operand, 2)
+  // not32(operand: string) {
+  //   const a = parseInt(operand, 2)
 
-    const res = ~a
+  //   const res = ~a
 
-    if (res < 0) {
-      console.log()
-      console.log('a ', a.toString(2))
-      console.log('not32 negative: ', res.toString(2))
-    }
+  //   if (res < 0) {
+  //     console.log()
+  //     console.log('a ', a.toString(2))
+  //     console.log('not32 negative: ', res.toString(2))
+  //   }
 
-    let str = res.toString(2)
+  //   let str = res.toString(2)
 
-    if (str.length > 32)
-      str = str.substring(str.length - 32)
-    else 
-      str = str.padStart(32, '0')
+  //   if (str.length > 32)
+  //     str = str.substring(str.length - 32)
+  //   else 
+  //     str = str.padStart(32, '0')
 
-    return str
-  }
+  //   return str
+  // }
+
+  // breakIntoChu
+
+
 }
 
 /*
